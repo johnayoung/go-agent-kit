@@ -1,7 +1,12 @@
 package main
 
-import "fmt"
+import (
+	"github.com/johnayoung/go-agent-kit/internal/cmd"
+	"os"
+)
 
 func main() {
-    fmt.Println("Hello, go-agent-kit!")
+	if err := cmd.Execute(); err != nil {
+		os.Exit(1)
+	}
 }

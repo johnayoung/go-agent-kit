@@ -1,120 +1,175 @@
-# GitHub Copilot Instructions for go-agent-kit
+# go-agent-kit - Custom Instructions for GitHub Copilot
 
-This project uses go-agent-kit for structured AI agent workflows. Use the following commands for systematic development:
+## Project Overview
 
-## Available Commands
+go-agent-kit is a CLI tool that installs GitHub Copilot integration files for structured AI workflows. It creates language-agnostic prompt templates that enable systematic development approaches using `/feat`, `/fix`, and `/refactor` commands in GitHub Copilot Chat. The tool works across any programming language by detecting project patterns and applying appropriate conventions.
 
-### /feat - Feature Implementation Workflow
-Use this command to implement new features with a structured approach.
+The core philosophy is to provide structured, 5-stage workflows that guide AI assistants through comprehensive development processes, from analysis to documentation, while respecting each project's unique patterns and conventions.
 
-**Usage:**
-```
-/feat [description of the feature to implement]
-```
+## Code Conventions
 
-**Examples:**
-- /feat add user authentication system
-- /feat implement REST API with JWT tokens
-- /feat add file upload functionality
-- /feat create admin dashboard
+### Patterns We Follow
 
-**What it does:**
-Generates a comprehensive 5-stage workflow:
-1. **CODEBASE ANALYSIS** - Detect language, examine patterns, find integration points
-2. **IMPLEMENTATION PLAN** - Plan files, dependencies, and implementation order
-3. **IMPLEMENTATION** - Step-by-step coding with language-specific best practices
-4. **TESTING** - Unit tests, integration tests, and edge cases
-5. **DOCUMENTATION** - Code comments, README updates, and API docs
-
-### /fix - Bug Fix Workflow
-Use this command to systematically diagnose and fix bugs.
-
-**Usage:**
-```
-/fix [description of the bug or issue]
+**Error Handling - Go Idiomatic Wrapping:**
+```go
+if err := os.MkdirAll(githubDir, 0755); err != nil {
+    return fmt.Errorf("failed to create .github directory: %w", err)
+}
 ```
 
-**Examples:**
-- /fix null pointer exception in user service
-- /fix memory leak in background worker
-- /fix authentication not working on mobile
-- /fix database connection timeout errors
-
-**What it does:**
-Generates a systematic 5-stage debugging workflow:
-1. **DIAGNOSIS** - Understand, locate, reproduce, and analyze the issue
-2. **FIX STRATEGY** - Plan the fix approach and assess impact
-3. **IMPLEMENTATION** - Apply minimal fix with safety checks
-4. **TESTING** - Verify fix and run regression tests
-5. **DOCUMENTATION** - Document the fix and add preventive measures
-
-### /refactor - Code Refactoring Workflow
-Use this command to systematically improve and refactor existing code.
-
-**Usage:**
-```
-/refactor [description of the refactoring task]
+**Table-Driven Tests:**
+```go
+tests := []struct {
+    name           string
+    expectedError  bool
+    checkFiles     []string
+    expectedInText []string
+}{
+    {
+        name:          "install command creates .github directory and files",
+        expectedError: false,
+        checkFiles: []string{
+            ".github/copilot-instructions.md",
+            ".github/prompts/feat.prompt.md",
+        },
+    },
+}
 ```
 
-**Examples:**
-- /refactor simplify user authentication logic
-- /refactor extract payment processing into separate service
-- /refactor optimize database query performance
-- /refactor improve error handling patterns
+**Cobra Command Registration:**
+```go
+var installCmd = &cobra.Command{
+    Use:   "install",
+    Short: "Install GitHub Copilot integration files",
+    Long:  `Detailed description...`,
+    RunE:  runInstall,
+}
 
-**What it does:**
-Generates a comprehensive 5-stage refactoring workflow:
-1. **CODEBASE ANALYSIS** - Understand current implementation and identify improvements
-2. **REFACTOR PLAN** - Plan refactoring strategy and assess risks
-3. **IMPLEMENTATION** - Apply refactoring techniques systematically
-4. **TESTING** - Verify functionality and performance are maintained
-5. **DOCUMENTATION** - Update docs to reflect architectural changes
+func init() {
+    rootCmd.AddCommand(installCmd)
+}
+```
 
-## Language-Agnostic Design
+**Template Embedding with embed.FS:**
+```go
+//go:embed prompts/*.md
+var PromptFiles embed.FS
 
-These workflows are designed to work with ANY programming language:
-- **Go** - Follows Go conventions, error patterns, and testing practices
-- **Python** - Uses PEP 8, type hints, and Python idioms
-- **TypeScript/JavaScript** - Proper types, async/await, modern patterns
-- **Java** - Java conventions, exception handling, design patterns
-- **C#** - .NET patterns, LINQ, async/await
-- **Ruby** - Ruby style guide, Rails conventions where applicable
-- **And many more...**
+content, err := templates.PromptFiles.ReadFile("prompts/feat.md")
+```
 
-## How It Works
+### What to Avoid
 
-1. **Language Detection**: Workflows automatically detect your project's language by examining files like go.mod, package.json, requirements.txt, etc.
+- **Don't use os.Exit() in commands** - Use error returns instead: `return fmt.Errorf("...")`
+- **Don't hardcode file paths** - Use `filepath.Join()`: `filepath.Join(githubDir, "prompts")`
+- **Don't skip error wrapping** - Always provide context: `fmt.Errorf("failed to X: %w", err)`
+- **Don't create files without proper permissions** - Use `0755` for directories, `0644` for files
+- **Don't write unit tests without table-driven structure** - Follow the established pattern
 
-2. **Pattern Analysis**: The AI analyzes your existing codebase to understand your specific patterns, architecture, and conventions.
+## Project Structure
 
-3. **Guided Implementation**: Each stage provides specific guidance while respecting your project's established patterns.
+```
+cmd/go-agent-kit/          # Main CLI entry point
+internal/
+  cmd/                     # Command implementations (install, root)
+  templates/               # Embedded template system
+    embed.go              # Template embedding with embed.FS
+    prompts/              # Markdown workflow templates
+      feat.md             # Feature implementation workflow
+      fix.md              # Bug fix workflow  
+      refactor.md         # Code refactoring workflow
+      instructions.md     # Instructions generation workflow
+```
 
-4. **Best Practices**: Language-specific guidelines ensure code follows community standards and best practices.
+**Key Files:**
+- `internal/cmd/install.go` - Core installation logic, file creation, instruction generation
+- `internal/templates/embed.go` - Template embedding system using Go's embed.FS
+- `cmd/go-agent-kit/main.go` - Simple main entry point calling `cmd.Execute()`
 
-## Integration with GitHub Copilot
+## Development Workflow
 
-When you use these commands in GitHub Copilot Chat:
+### Common Commands
+```bash
+# Build the CLI
+make build
 
-1. **Copy the generated workflow** from the command output
-2. **Follow each stage systematically** - don't skip ahead
-3. **Let Copilot examine your codebase** when prompted with @workspace
-4. **Implement step by step** as guided by the workflow
+# Run tests
+make test
 
-## Benefits
+# Clean build artifacts
+make clean
 
-- ✅ **Consistent Quality**: Every feature and fix follows the same systematic approach
-- ✅ **Language Agnostic**: Works across all programming languages and frameworks  
-- ✅ **Best Practices**: Incorporates language-specific conventions and patterns
-- ✅ **Comprehensive**: Covers analysis, implementation, testing, and documentation
-- ✅ **AI-Optimized**: Designed specifically for AI agents like GitHub Copilot
+# Build and run
+make run
 
-## Getting Started
+# Tidy dependencies
+go mod tidy
 
-1. Run `go-agent-kit install` in your project (already done!)
-2. Open GitHub Copilot Chat
-3. Try: `/feat add a simple hello world endpoint`
-4. Follow the generated workflow step by step
+# Cross-compile for Linux
+make build-linux
+```
+
+### Testing Requirements
+
+**Test Structure - Follow Table-Driven Pattern:**
+```go
+func TestInstallCommand(t *testing.T) {
+    tests := []struct {
+        name           string
+        expectedError  bool
+        checkFiles     []string
+        expectedInText []string
+    }{
+        // Test cases here
+    }
+    
+    for _, tt := range tests {
+        t.Run(tt.name, func(t *testing.T) {
+            // Test implementation
+        })
+    }
+}
+```
+
+**Test Organization:**
+- One test file per source file: `install.go` → `install_test.go`
+- Use temporary directories for file system tests
+- Clean up resources with `defer os.RemoveAll(tempDir)`
+- Test both success and error cases
+
+## Technical Context
+
+### Template System Architecture
+Templates use Go's `text/template` syntax with `{{.Description}}` placeholders. The embed.FS system allows templates to be compiled into the binary while remaining editable during development.
+
+### Language-Agnostic Design Philosophy
+The workflow templates are designed to work with ANY programming language by:
+1. **Language Detection** - Examining project files (go.mod, package.json, etc.)
+2. **Pattern Analysis** - Understanding existing codebase conventions
+3. **Adaptive Implementation** - Applying language-specific best practices
+
+### File System Operations
+- Always use `filepath.Join()` for cross-platform compatibility
+- Create directories with `os.MkdirAll(dir, 0755)`
+- Write files with `os.WriteFile(path, content, 0644)`
+- Handle permissions explicitly for security
+
+### CLI Design Principles
+- Simple command structure: `go-agent-kit install`
+- Rich help text with examples and context
+- Informative success messages with next steps
+- Error messages that guide users toward solutions
+
+### Performance Considerations
+- Templates are embedded at compile-time for fast access
+- File operations are batched in single `install` command
+- No external dependencies beyond standard library + Cobra
+
+### Preferred Libraries
+- **CLI**: `github.com/spf13/cobra` for command structure
+- **Colors**: `github.com/fatih/color` for terminal styling
+- **File Operations**: Standard library `os`, `filepath` packages
+- **Templates**: Standard library `embed` and `text/template`
 
 ---
-
-*Generated by go-agent-kit - A language-agnostic toolkit for structured AI agent workflows.*
+*Last updated: September 10, 2025*

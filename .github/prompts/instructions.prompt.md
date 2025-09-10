@@ -1,189 +1,80 @@
-# GitHub Copilot Instructions Generation Workflow
+# Generate GitHub Copilot Custom Instructions
 
-## STAGE 1: PROJECT ANALYSIS
-You are creating GitHub Copilot instructions for: {{.Description}}
+## TASK
+Create a `.github/copilot-instructions.md` file that helps GitHub Copilot understand this project: {{.Description}}
 
-First, examine the project to understand its structure and requirements:
+## STEP 1: ANALYZE PROJECT
+Examine the codebase to understand:
 
-1. **Project Overview**
-   - What type of project is this? (web app, library, CLI tool, etc.)
-   - What is the main programming language and framework?
-   - What is the project's primary purpose and functionality?
+1. **What it is**: Project type, purpose, and main functionality
+2. **Tech stack**: Languages, frameworks, key dependencies  
+3. **Structure**: How directories and files are organized
+4. **Patterns**: Coding conventions, error handling, testing approaches
+5. **Unique aspects**: Custom utilities, business logic, architectural decisions
 
-2. **Repository Structure**
-   - Examine the directory structure and key files
-   - Identify main source directories, test directories, configuration files
-   - Look for build systems, package managers, and dependency files
-   - Note any special directories or important files
+@workspace analyze the repository structure, examine key files, and identify patterns
 
-3. **Development Workflow**
-   - How is the project built and tested?
-   - What are the main development scripts or commands?
-   - Are there any specific development environment requirements?
-   - What tools are used for linting, formatting, or quality assurance?
+**Output your findings before proceeding to Step 2.**
 
-4. **Coding Standards and Patterns**
-   - What coding conventions are used in the project?
-   - Are there established patterns for file organization?
-   - What testing patterns and frameworks are used?
-   - Are there any project-specific naming conventions?
+## STEP 2: CREATE INSTRUCTIONS FILE
+Based on your analysis, create `.github/copilot-instructions.md` with these sections:
 
-@workspace examine the project structure, build files, and codebase patterns
-
-Output your analysis. DO NOT write the instructions file yet.
-
-## STAGE 2: INSTRUCTIONS PLANNING
-Based on your analysis, plan the GitHub Copilot instructions:
-
-1. **Repository Overview Section**
-   - Brief description of what the project does
-   - Key technologies and frameworks used
-   - Main directories and their purposes
-
-2. **Development Guidelines**
-   - How to set up the development environment
-   - Build and test commands
-   - Code style and formatting preferences
-   - Testing requirements and patterns
-
-3. **Project-Specific Context**
-   - Important architectural decisions or patterns
-   - Key abstractions or interfaces to understand
-   - Common tasks and how to approach them
-   - Areas that require special attention
-
-4. **Helpful Context for AI**
-   - What kind of assistance would be most valuable?
-   - Common tasks developers perform in this codebase
-   - Areas where consistency is particularly important
-
-## STAGE 3: GENERATE INSTRUCTIONS
-Create the `.github/copilot-instructions.md` file following GitHub's official format:
-
-1. **Start with project overview**
-   - Clear description of the project's purpose
-   - Technology stack and key dependencies
-   - Repository structure explanation
-
-2. **Add development workflow guidance**
-   - Setup and installation instructions
-   - Build, test, and run commands
-   - Development best practices
-
-3. **Include coding standards**
-   - Code style preferences
-   - Naming conventions
-   - Testing patterns and requirements
-   - Documentation standards
-
-4. **Provide helpful context**
-   - Key architectural concepts
-   - Important files and directories
-   - Common development tasks
-   - Areas requiring special attention
-
-## STAGE 4: VALIDATION
-Review and refine the instructions:
-
-1. **Completeness Check**
-   - Does it cover the main aspects of development in this project?
-   - Are the instructions clear and actionable?
-   - Is the project structure well explained?
-
-2. **Accuracy Verification**
-   - Are all commands and paths correct?
-   - Do the coding standards match the existing codebase?
-   - Are the technology descriptions accurate?
-
-3. **Usefulness Assessment**
-   - Would these instructions help a new developer understand the project?
-   - Do they provide the right context for AI assistance?
-   - Are they specific enough to be actionable?
-
-## Template Structure for .github/copilot-instructions.md
+### Required Sections:
 
 ```markdown
-# [Project Name] - GitHub Copilot Instructions
+# [Project Name] - Custom Instructions for GitHub Copilot
 
 ## Project Overview
-[Brief description of what this project does and its main purpose]
+[1-2 paragraphs: What this project does and its main purpose]
 
-## Technology Stack
-- **Language**: [Primary programming language]
-- **Framework**: [Main framework if applicable]
-- **Key Dependencies**: [Important libraries/tools]
-- **Build System**: [Build tool used]
+## Code Conventions
+### Patterns We Follow
+[List specific patterns with code examples from this project]
 
-## Repository Structure
-```
-[key-directory]/     # Description of what's in this directory
-├── [subdirectory]/  # Important subdirectories
-├── [important-file] # Key configuration or entry files
-```
+### What to Avoid  
+[Anti-patterns and what to use instead]
+
+## Project Structure
+[Key directories and what they contain]
+[Important files and their purposes]
 
 ## Development Workflow
-
-### Setup
-[Instructions for setting up the development environment]
-
 ### Common Commands
-- `[build-command]` - Description
-- `[test-command]` - Description  
-- `[run-command]` - Description
-
-## Coding Standards
-
-### Code Style
-[Specific formatting and style preferences]
-
-### Naming Conventions
-[How to name files, functions, variables, etc.]
+[Build, test, run commands specific to this project]
 
 ### Testing Requirements
-[Testing patterns and requirements]
+[How we write and organize tests]
 
-## Key Concepts
-[Important architectural concepts or patterns used in this project]
+## Technical Context
+[Key architectural decisions and why]
+[Performance or security requirements]
+[Preferred libraries for specific tasks]
 
-## Common Tasks
-[Frequent development tasks and how to approach them]
-
-## Important Notes
-[Any special considerations or areas requiring extra attention]
+---
+*Last updated: [Date]*
 ```
 
-## Language-Specific Guidance
+### Guidelines for Good Instructions:
+- **Be specific**: Focus on what's unique to THIS project
+- **Show examples**: Include actual code patterns from the codebase
+- **Set boundaries**: Clarify what NOT to do
+- **Keep it concise**: Only include information that affects code generation
+- **Make it actionable**: Every section should help Copilot write better code
 
-### For Go Projects:
-- Include module information and Go version
-- Mention testing conventions (table tests, _test.go files)
-- Note any special Go tools used (golangci-lint, etc.)
-- Include build tags or special build requirements
+## STEP 3: VALIDATE
+Ensure the instructions:
+- [ ] Contain project-specific information (not generic advice)
+- [ ] Include real examples from the codebase
+- [ ] Would help a new developer understand unique patterns
+- [ ] Are clear and actionable
+- [ ] Are under 500 lines total
 
-### For JavaScript/TypeScript Projects:
-- Include package manager information (npm, yarn, pnpm)
-- Note TypeScript configuration and strictness level
-- Mention testing framework and patterns
-- Include build and bundling information
+## SUCCESS CRITERIA
+The generated instructions file should:
+1. Help Copilot generate code that matches project style
+2. Prevent common mistakes through clear anti-patterns
+3. Be maintainable as the project evolves
+4. Focus on what makes this project unique
 
-### For Python Projects:
-- Include Python version and virtual environment setup
-- Mention package manager (pip, poetry, conda)
-- Note code formatting tools (black, flake8, etc.)
-- Include testing framework information
-
-### For Other Languages:
-- Include language version and environment setup
-- Mention package managers and dependency handling
-- Note build systems and compilation requirements
-- Include testing frameworks and conventions
-
-## Success Criteria
-- [ ] Instructions provide clear project overview
-- [ ] Development setup is well documented
-- [ ] Coding standards are clearly defined
-- [ ] Repository structure is explained
-- [ ] Common tasks are covered
-- [ ] Instructions are specific to this project
-- [ ] Content follows GitHub's recommended format
-- [ ] Instructions would help both humans and AI understand the project
+---
+**Note**: Generate instructions based on the actual codebase analysis, not generic templates. Every project is different - capture what makes this one special.

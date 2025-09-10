@@ -52,16 +52,15 @@ func runInstall(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to write copilot instructions: %w", err)
 	}
 
-	cmd.Printf("✅ Successfully installed GitHub Copilot integration!\n")
-	cmd.Printf("📁 Created: %s\n", instructionsPath)
-	cmd.Printf("📁 Created: %s/feat.prompt.md\n", promptsDir)
-	cmd.Printf("📁 Created: %s/fix.prompt.md\n", promptsDir)
-	cmd.Printf("📁 Created: %s/refactor.prompt.md\n", promptsDir)
-	cmd.Printf("\n🚀 You can now use these commands in GitHub Copilot:\n")
-	cmd.Printf("   /feat add user authentication\n")
-	cmd.Printf("   /fix null pointer exception\n")
-	cmd.Printf("   /refactor simplify error handling\n")
-	cmd.Printf("\n💡 The workflows are language-agnostic and work with any programming language.\n")
+	fmt.Println("✅ GitHub Copilot integration installed successfully!")
+	fmt.Println()
+	fmt.Println("Available commands in GitHub Copilot Chat:")
+	fmt.Println("  /refactor [description] - Systematic code refactoring workflow")
+	fmt.Println("  /instructions           - Generate GitHub Copilot instructions")
+	fmt.Println()
+	fmt.Println("Example usage:")
+	fmt.Println("  /refactor simplify user authentication logic")
+	fmt.Println("  /instructions")
 
 	return nil
 }
@@ -101,6 +100,18 @@ func installPromptFiles(promptsDir string) error {
 	refactorPath := filepath.Join(promptsDir, "refactor.prompt.md")
 	if err := os.WriteFile(refactorPath, refactorContent, 0644); err != nil {
 		return fmt.Errorf("failed to write refactor prompt file: %w", err)
+	}
+
+	// Get instructions template content
+	instructionsContent, err := templates.PromptFiles.ReadFile("prompts/instructions.md")
+	if err != nil {
+		return fmt.Errorf("failed to read instructions template: %w", err)
+	}
+
+	// Write instructions.prompt.md
+	instructionsPath := filepath.Join(promptsDir, "instructions.prompt.md")
+	if err := os.WriteFile(instructionsPath, instructionsContent, 0644); err != nil {
+		return fmt.Errorf("failed to write instructions prompt file: %w", err)
 	}
 
 	return nil

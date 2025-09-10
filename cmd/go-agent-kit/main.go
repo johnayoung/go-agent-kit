@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/johnayoung/go-agent-kit/internal/cmd"
 	"os"
+
+	"github.com/johnayoung/go-agent-kit/internal/cmd"
 )
 
 func main() {

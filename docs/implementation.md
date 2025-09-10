@@ -3,7 +3,7 @@
 ## Commit Sequence Checklist
 
 - [x] Commit 1: Project initialization and CLI foundation
-- [ ] Commit 2: Init command with file operations
+- [x] Commit 2: Init command with file operations
 - [ ] Commit 3: Specify and Plan prompt templates
 - [ ] Commit 4: Implement and Verify prompt templates  
 - [ ] Commit 5: Polish, testing, and documentation

@@ -1,14 +1,14 @@
 # go-agent-kit
 
-A language-agnostic toolkit for creating structured AI agent workflows. While written in Go, it works with any programming language or framework.
+Install GitHub Copilot integration for structured AI agent workflows. Works with any programming language or framework.
 
-## Features
+## What it does
 
-- 🌍 **Language Agnostic**: Works with Go, Python, TypeScript, Ruby, Java, C#, and more
-- 🤖 **Agent-First**: Designed specifically for AI agents like GitHub Copilot
-- 📋 **Structured Workflows**: Enforces best practices through systematic staged processes
-- 🔧 **Extensible**: Easy to add new command templates and workflows
-- ✅ **Battle-Tested**: Comprehensive test coverage and robust error handling
+go-agent-kit installs GitHub Copilot prompt files that enable you to use structured AI workflows directly in GitHub Copilot Chat:
+
+- � **`/feat [description]`** - Generate feature implementation workflows
+- 🔧 **`/fix [description]`** - Generate systematic bug fix workflows  
+- ♻️ **`/refactor [description]`** - Generate code improvement workflows
 
 ## Installation
 
@@ -24,119 +24,115 @@ go build -o go-agent-kit ./cmd/go-agent-kit/
 go install github.com/johnayoung/go-agent-kit/cmd/go-agent-kit@latest
 ```
 
-## Quick Start
+## Usage
 
-1. **Install integration in your project** (any language):
-   ```bash
-   go-agent-kit install
-   ```
+### 1. Install GitHub Copilot Integration
+Run this command in any project directory:
 
-2. **Use in GitHub Copilot Chat**:
-   ```
-   /feat add user authentication system
-   /fix null pointer exception in service layer
-   /refactor simplify payment processing logic
-   ```
-
-3. **Follow the generated workflows** step by step for systematic development
-
-## Commands
-
-### `go-agent-kit feat [description]`
-Generate a comprehensive feature implementation workflow with 5 stages:
-1. **Codebase Analysis** - Detect language, examine patterns, find integration points
-2. **Implementation Plan** - Plan files, dependencies, and implementation order  
-3. **Implementation** - Step-by-step coding with language-specific best practices
-4. **Testing** - Unit tests, integration tests, and edge cases
-5. **Documentation** - Code comments, README updates, and API docs
-
-**Examples:**
 ```bash
-go-agent-kit feat "add user authentication"
-go-agent-kit feat "implement REST API with JWT"
-go-agent-kit feat "add file upload functionality"
+go-agent-kit install
 ```
 
-### `go-agent-kit fix [description]`
-Generate a systematic bug fix workflow with 5 stages:
-1. **Diagnosis** - Understand, locate, reproduce, and analyze the issue
-2. **Fix Strategy** - Plan the fix approach and assess impact
-3. **Implementation** - Apply minimal fix with safety checks
-4. **Testing** - Verify fix and run regression tests
-5. **Documentation** - Document the fix and add preventive measures
+This creates:
+- `.github/copilot-instructions.md` - Instructions for your team
+- `.github/prompts/feat.prompt.md` - Feature workflow template
+- `.github/prompts/fix.prompt.md` - Bug fix workflow template  
+- `.github/prompts/refactor.prompt.md` - Refactoring workflow template
 
-**Examples:**
-```bash
-go-agent-kit fix "null pointer exception in user service"
-go-agent-kit fix "memory leak in background worker"
-go-agent-kit fix "authentication not working on mobile"
+### 2. Use in GitHub Copilot Chat
+
+Open GitHub Copilot Chat and use the workflows:
+
+```
+/feat add user authentication system
+/fix null pointer exception in service layer
+/refactor simplify payment processing logic
 ```
 
-### `go-agent-kit refactor [description]`
-Generate a comprehensive code refactoring workflow with 5 stages:
-1. **Codebase Analysis** - Understand current implementation and identify improvements
-2. **Refactor Plan** - Plan refactoring strategy and assess risks
-3. **Implementation** - Apply refactoring techniques systematically
-4. **Testing** - Verify functionality and performance are maintained
-5. **Documentation** - Update docs to reflect architectural changes
-
-**Examples:**
-```bash
-go-agent-kit refactor "simplify user authentication logic"
-go-agent-kit refactor "extract payment processing into separate service"
-go-agent-kit refactor "optimize database query performance"
-```
-
-### `go-agent-kit install`
-Install GitHub Copilot integration files in your project:
-- Creates `.github/copilot-instructions.md` with usage instructions
-- Creates `.github/prompts/` directory with workflow templates
-- Enables `/feat`, `/fix`, and `/refactor` commands in GitHub Copilot Chat
-- Works with any programming language or framework
+Each command generates a comprehensive 5-stage workflow:
+1. **Analysis** - Understand the codebase and requirements
+2. **Planning** - Create detailed implementation strategy
+3. **Implementation** - Step-by-step coding with best practices
+4. **Testing** - Comprehensive testing and validation
+5. **Documentation** - Proper documentation and comments
 
 ## Language Support
 
 The workflows automatically detect and provide guidance for:
 
-| Language                  | Detection                            | Best Practices                         | Testing Patterns              |
-| ------------------------- | ------------------------------------ | -------------------------------------- | ----------------------------- |
-| **Go**                    | `go.mod`                             | Error patterns, interfaces, Go modules | `_test.go` files, table tests |
-| **Python**                | `requirements.txt`, `pyproject.toml` | PEP 8, type hints, packages            | `pytest`, `unittest`          |
-| **TypeScript/JavaScript** | `package.json`, `tsconfig.json`      | ESLint rules, async/await, types       | Jest, Mocha, Cypress          |
-| **Java**                  | `pom.xml`, `build.gradle`            | Design patterns, exceptions            | JUnit, TestNG                 |
-| **C#**                    | `*.csproj`, `*.sln`                  | LINQ, async/await, IDisposable         | MSTest, NUnit, xUnit          |
-| **Ruby**                  | `Gemfile`, `*.gemspec`               | Ruby style guide, Rails conventions    | RSpec, Minitest               |
+| Language | Framework Support | Best Practices |
+|----------|------------------|----------------|
+| **Go** | Gin, Echo, Fiber | Error handling, interfaces, testing |
+| **Python** | Django, Flask, FastAPI | PEP 8, type hints, testing |
+| **TypeScript** | React, Next.js, Express | ESLint, async/await, types |
+| **JavaScript** | Vue, Angular, Node.js | Modern ES6+, testing |
+| **Java** | Spring, Spring Boot | Design patterns, testing |
+| **C#** | ASP.NET, .NET Core | LINQ, async/await, testing |
+| **Ruby** | Rails, Sinatra | Style guide, conventions |
+
+## Example Workflows
+
+### Feature Implementation
+```
+/feat add JWT authentication middleware
+```
+Generates a workflow that:
+- Analyzes your project structure and patterns
+- Plans the implementation with security best practices
+- Guides through step-by-step implementation
+- Creates comprehensive tests
+- Documents the new functionality
+
+### Bug Fixing
+```
+/fix memory leak in background worker
+```
+Generates a workflow that:
+- Systematically diagnoses the issue
+- Plans the safest fix approach
+- Implements minimal, targeted changes
+- Validates the fix with testing
+- Documents the solution
+
+### Code Refactoring
+```
+/refactor extract database layer into repository pattern
+```
+Generates a workflow that:
+- Analyzes current code structure
+- Plans refactoring strategy and risks
+- Applies changes systematically
+- Ensures all tests still pass
+- Updates documentation
 
 ## How It Works
 
-1. **Language Detection**: Workflows examine your project files to detect the primary language and framework
-2. **Pattern Analysis**: AI analyzes your existing codebase to understand your specific patterns and architecture
-3. **Guided Implementation**: Each stage provides specific guidance while respecting your project's established conventions
-4. **Best Practices**: Language-specific guidelines ensure code follows community standards
-
-## Integration with GitHub Copilot
-
-After running `go-agent-kit install`, you can use these commands directly in GitHub Copilot Chat:
-
-```
-/feat add user authentication system
-/fix database connection timeout errors
-```
-
-The AI will:
-1. Generate the appropriate workflow for your request
-2. Follow each stage systematically  
-3. Examine your codebase when prompted with `@workspace`
-4. Implement following your project's patterns and language conventions
+1. **Language Detection**: Automatically detects your project's language and framework
+2. **Pattern Analysis**: Understands your existing code patterns and conventions  
+3. **Systematic Guidance**: Provides step-by-step instructions following best practices
+4. **Quality Assurance**: Ensures proper testing and documentation
 
 ## Benefits
 
-- ✅ **Consistent Quality**: Every feature and fix follows the same systematic approach
-- ✅ **Language Agnostic**: Works across all programming languages and frameworks
-- ✅ **Best Practices**: Incorporates language-specific conventions and patterns  
-- ✅ **Comprehensive**: Covers analysis, implementation, testing, and documentation
-- ✅ **AI-Optimized**: Designed specifically for AI agents like GitHub Copilot
-- ✅ **Extensible**: Easy to add new workflows and customize for your needs
+✅ **Consistent Quality** - Every change follows the same systematic approach  
+✅ **Language Agnostic** - Works across all programming languages and frameworks  
+✅ **Best Practices** - Incorporates community standards and conventions  
+✅ **Comprehensive** - Covers analysis, implementation, testing, and documentation  
+✅ **AI-Optimized** - Designed specifically for GitHub Copilot integration  
+✅ **Team-Friendly** - Share consistent workflows across your entire team
+
+## Project Structure
+
+```
+go-agent-kit/
+├── cmd/go-agent-kit/           # CLI entry point
+├── internal/
+│   ├── cmd/                    # Install command
+│   └── templates/              # Workflow templates
+└── .github/
+    ├── copilot-instructions.md # GitHub Copilot integration
+    └── prompts/                # Workflow prompt files
+```
 
 ## Development
 
@@ -151,32 +147,23 @@ go build ./cmd/go-agent-kit/
 
 ### Testing
 ```bash
-go test ./...                    # Run all tests
-go test -v ./internal/cmd/       # Run CLI tests with verbose output
-go test -v ./internal/templates/ # Run template tests with verbose output
+go test ./...     # Run all tests
 ```
 
-### Code Quality
-```bash
-go vet ./...     # Static analysis
-go fmt ./...     # Format code
-```
+## Contributing
 
-## Project Structure
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes following the existing patterns
+4. Add tests for new functionality
+5. Ensure all tests pass (`go test ./...`)
+6. Commit your changes (`git commit -m 'Add amazing feature'`)
+7. Push to the branch (`git push origin feature/amazing-feature`)
+8. Open a Pull Request
 
-```
-go-agent-kit/
-├── cmd/go-agent-kit/           # CLI entry point
-├── internal/
-│   ├── cmd/                    # CLI commands (feat, fix, install)
-│   └── templates/              # Template system
-│       ├── prompts/            # Workflow templates
-│       ├── embed.go            # Embedded file system
-│       └── renderer.go         # Template rendering
-├── .github/
-│   └── copilot-instructions.md # GitHub Copilot integration
-└── docs/                       # Documentation
-```
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Contributing
 

@@ -30,11 +30,12 @@ func TestRootCmd(t *testing.T) {
 			// Reset the command for each test
 			cmd := &cobra.Command{
 				Use:   "go-agent-kit",
-				Short: "A language-agnostic toolkit for creating structured AI agent workflows",
-				Long: `go-agent-kit is a language-agnostic toolkit for creating structured AI agent workflows.
-While written in Go, it works with any programming language or framework.`,
+				Short: "Install GitHub Copilot integration for structured AI workflows",
+				Long: `go-agent-kit installs GitHub Copilot integration files that enable structured AI agent workflows.
+After installation, use /feat, /fix, and /refactor commands directly in GitHub Copilot Chat.
+Works with any programming language or framework.`,
 			}
-			cmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+			// No flags needed for simplified CLI
 
 			cmd.SetArgs(tt.args)
 			err := cmd.Execute()

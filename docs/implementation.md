@@ -1,382 +1,378 @@
-# AgentKit Implementation - Detailed Requirements
+# MVP Execution Plan: Language-Agnostic Agent Kit
 
-## Project Context
-AgentKit is a CLI tool that creates intelligent prompt templates for GitHub Copilot. Users run `agentkit init` once to set up their project, then use commands like `@workspace /specify` in VS Code's Copilot Chat to build software through specification-driven development.
+## Starting Point
+Project already initialized with:
+- Standard Go project structure
+- `cmd/go-agent-kit/main.go`
+- Makefile
+- README.md
+- `.gitignore`
 
-## Current Status
-- ✅ Commit 1: Basic CLI structure exists
-- ✅ Commit 2: Init command creates files with placeholders
-- ✅ Commit 3: Specify and Plan Prompt Templates with comprehensive content
-- 📍 **NEXT: Commit 4** - Implement and Verify prompt templates
+## Phase 1: Core Template System (Day 1)
+
+### Commit 1: Create language-agnostic feat template
+**Files:**
+- `/prompts/feat.md`
+```markdown
+# Feature Implementation Workflow
+
+## STAGE 1: CODEBASE ANALYSIS
+You are analyzing this codebase to implement: {{.Description}}
+
+First, examine the codebase and report:
+
+1. **Detect the project language and framework**
+   - Look for: go.mod, package.json, requirements.txt, Gemfile, pom.xml, etc.
+   - Identify the primary language and any frameworks
+
+2. **Read and list all relevant files** for this feature
+   
+3. **Identify existing patterns**:
+   - Architecture style (look at folder structure)
+   - How similar features are implemented
+   - Error handling patterns
+   - Testing patterns
+
+4. **Find integration points** where this feature will connect
+
+@workspace examine the project structure and main entry points
+
+Output a summary of what you found. DO NOT write code yet.
+
+## STAGE 2: IMPLEMENTATION PLAN
+[Rest of template...]
+```
+
+**Commit message:** `feat: add language-agnostic feat prompt template`
+
+### Commit 2: Add template embedding system
+**Files:**
+- `/internal/templates/embed.go`
+```go
+package templates
+
+import (
+    "embed"
+)
+
+//go:embed prompts/*.md
+var PromptFiles embed.FS
+```
+
+**Commit message:** `feat: add embedded template system`
+
+### Commit 3: Create template renderer
+**Files:**
+- `/internal/templates/renderer.go`
+```go
+package templates
+
+import (
+    "bytes"
+    "text/template"
+)
+
+type Context struct {
+    Description string
+    // Language detected at runtime, not hardcoded
+}
+
+func Render(templateName string, ctx Context) (string, error) {
+    // Load and execute template
+}
+```
+
+**Commit message:** `feat: add template rendering engine`
+
+## Phase 2: CLI Command Structure (Day 1)
+
+### Commit 4: Implement main CLI with feat command
+**Files:**
+- `/cmd/go-agent-kit/main.go` (update existing)
+```go
+package main
+
+import (
+    "fmt"
+    "os"
+    "github.com/yourusername/go-agent-kit/internal/commands"
+)
+
+func main() {
+    if len(os.Args) < 2 {
+        printUsage()
+        os.Exit(1)
+    }
+    
+    switch os.Args[1] {
+    case "feat":
+        commands.Feat(os.Args[2:])
+    case "help":
+        printHelp()
+    default:
+        fmt.Printf("Unknown command: %s\n", os.Args[1])
+        printUsage()
+        os.Exit(1)
+    }
+}
+```
+
+**Commit message:** `feat: implement CLI with feat command`
+
+### Commit 5: Create feat command handler
+**Files:**
+- `/internal/commands/feat.go`
+```go
+package commands
+
+import (
+    "fmt"
+    "strings"
+    "github.com/yourusername/go-agent-kit/internal/templates"
+)
+
+func Feat(args []string) error {
+    if len(args) == 0 {
+        return fmt.Errorf("feat requires a description")
+    }
+    
+    ctx := templates.Context{
+        Description: strings.Join(args, " "),
+    }
+    
+    output, err := templates.Render("feat", ctx)
+    if err != nil {
+        return err
+    }
+    
+    fmt.Println(output)
+    return nil
+}
+```
+
+**Commit message:** `feat: implement feat command with template output`
+
+## Phase 3: Multi-Language Support Templates (Day 2)
+
+### Commit 6: Add language-specific sections to template
+**Files:**
+- `/prompts/feat.md` (updated)
+- `/prompts/partials/go-patterns.md`
+- `/prompts/partials/python-patterns.md`
+- `/prompts/partials/typescript-patterns.md`
+
+```markdown
+## Language-Specific Patterns
+
+Based on the detected language, follow these additional guidelines:
+
+### If Go:
+- Use error return pattern (value, error)
+- Follow Go module structure
+- Use interfaces for abstraction
+
+### If Python:
+- Follow PEP 8 style guide
+- Use type hints where appropriate
+- Create __init__.py for packages
+
+### If TypeScript/JavaScript:
+- Use proper TypeScript types (no 'any')
+- Follow ESLint rules if present
+- Use async/await over callbacks
+```
+
+**Commit message:** `feat: add multi-language pattern guidelines`
+
+### Commit 7: Add fix command template
+**Files:**
+- `/prompts/fix.md`
+```markdown
+# Bug Fix Workflow
+
+## STAGE 1: DIAGNOSIS
+Analyze the reported issue: {{.Description}}
+
+1. Identify the symptoms
+2. Locate relevant code sections
+3. Form hypothesis about root cause
+4. Check for similar patterns that might have the same bug
+
+[Template continues...]
+```
+
+**Commit message:** `feat: add language-agnostic fix command template`
+
+## Phase 4: GitHub Integration (Day 2)
+
+### Commit 8: Add install command
+**Files:**
+- `/internal/commands/install.go`
+```go
+package commands
+
+import (
+    "os"
+    "path/filepath"
+)
+
+func Install() error {
+    // Creates .github/copilot-instructions.md
+    instructions := generateInstructions()
+    
+    githubDir := filepath.Join(".", ".github")
+    if err := os.MkdirAll(githubDir, 0755); err != nil {
+        return err
+    }
+    
+    return os.WriteFile(
+        filepath.Join(githubDir, "copilot-instructions.md"),
+        []byte(instructions),
+        0644,
+    )
+}
+```
+
+**Commit message:** `feat: add install command for GitHub Copilot integration`
+
+### Commit 9: Wire up install command
+**Files:**
+- `/cmd/go-agent-kit/main.go` (add install case)
+
+**Commit message:** `feat: connect install command to CLI`
+
+## Phase 5: Testing & Documentation (Day 3)
+
+### Commit 10: Add example outputs
+**Files:**
+- `/examples/go-project-feat.md`
+- `/examples/python-project-feat.md`
+- `/examples/typescript-project-feat.md`
+
+**Commit message:** `docs: add language-specific example outputs`
+
+### Commit 11: Update README with language-agnostic focus
+**Files:**
+- `/README.md`
+```markdown
+# go-agent-kit
+
+A language-agnostic toolkit for creating structured AI agent workflows. While written in Go, it works with any programming language or framework.
+
+## Features
+
+- 🌍 **Language Agnostic**: Works with Go, Python, TypeScript, Ruby, Java, etc.
+- 🤖 **Agent-First**: Designed for AI agents like GitHub Copilot
+- 📋 **Structured Workflows**: Enforces best practices through staged processes
+- 🔧 **Extensible**: Easy to add new command templates
+
+## Installation
+
+```bash
+go install github.com/yourusername/go-agent-kit/cmd/go-agent-kit@latest
+```
+
+## Usage
+
+```bash
+# In any project (Go, Python, TypeScript, etc.)
+go-agent-kit install
+
+# Then in GitHub Copilot:
+/feat add user authentication
+/fix null pointer in user service
+```
+```
+
+**Commit message:** `docs: update README for language-agnostic usage`
+
+### Commit 12: Add integration tests
+**Files:**
+- `/test/integration/feat_test.go`
+```go
+package integration
+
+import (
+    "testing"
+    "strings"
+)
+
+func TestFeatCommand(t *testing.T) {
+    // Test that feat command generates proper workflow
+    output := runCommand("feat", "add authentication")
+    
+    if !strings.Contains(output, "STAGE 1: CODEBASE ANALYSIS") {
+        t.Error("Missing Stage 1")
+    }
+}
+```
+
+**Commit message:** `test: add integration tests for feat command`
+
+## Phase 6: Self-Improvement Demo (Day 3-4)
+
+### Commit 13: Use /feat to add /refactor command
+**Description:** Actually use the tool's `/feat` command to generate the refactor command
+**Files:**
+- `/prompts/refactor.md` (generated using feat!)
+- `/internal/commands/refactor.go`
+
+**Commit message:** `feat: add refactor command using feat workflow [dogfooding]`
+
+### Commit 14: Add test command template
+**Files:**
+- `/prompts/test.md`
+- `/internal/commands/test.go`
+
+**Commit message:** `feat: add test command for generating comprehensive tests`
+
+## Phase 7: Polish & Release (Day 4)
+
+### Commit 15: Add version command with build info
+**Files:**
+- `/internal/version/version.go`
+```go
+package version
+
+var (
+    Version = "0.1.0"
+    Commit  = "unknown"
+    Date    = "unknown"
+)
+```
+- Update Makefile with ldflags
+
+**Commit message:** `feat: add version command with build information`
+
+### Commit 16: Add CI/CD pipeline
+**Files:**
+- `/.github/workflows/ci.yml`
+- `/.github/workflows/release.yml`
+- `/.goreleaser.yml`
+
+**Commit message:** `ci: add GitHub Actions for testing and releases`
+
+### Commit 17: Tag initial release
+```bash
+git tag -a v0.1.0 -m "Initial release: language-agnostic agent workflows"
+git push origin v0.1.0
+```
+
+**Commit message:** `release: v0.1.0 - language-agnostic agent kit`
 
 ---
 
-# Commit 3: Specify and Plan Prompt Templates
-
-## Background Understanding
-
-### What These Prompts Do
-The prompts are instructions that tell GitHub Copilot how to behave when users type specific commands. Think of them as "teaching" Copilot to be a specification expert, architect, developer, and QA engineer.
-
-### How They're Used
-1. User types `@workspace /specify` in VS Code Copilot Chat
-2. Copilot reads the prompt template we created
-3. Copilot follows those instructions to help the user
-4. Copilot creates actual files in the project (not just chat responses)
-
-## Requirements for the Specify Prompt
-
-### Core Purpose
-The `/specify` command helps users define WHAT they want to build without any technical details. It's like a business analyst gathering requirements.
-
-### Key Behaviors Required
-
-#### Context Detection
-- The prompt must teach Copilot to detect whether the user wants a project-level specification or a feature specification
-- If user types just `/specify` → create project specification
-- If user types `/specify user-authentication` → create feature specification
-
-#### File Creation
-- Must instruct Copilot to create actual markdown files, not just output text
-- Project specs go in `project/specification.md`
-- Feature specs go in `specs/[feature-name].md`
-
-#### Content Generation
-The prompt must guide Copilot to generate:
-
-**For Project Specifications:**
-- What problem does this solve?
-- Who are the users?
-- What are the main features (high-level)?
-- How do we measure success?
-- What are we NOT building?
-
-**Critical: Question Generation**
-- Must generate 10-20 questions that need answers before building
-- Questions like: "Can users have multiple accounts?", "What happens when X fails?", "Is there a limit to Y?"
-- These questions prevent incomplete specifications
-
-**For Feature Specifications:**
-- What is this specific feature?
-- User stories with acceptance criteria
-- Business rules and logic
-- How it connects to other features
-- Feature-specific questions
-
-### Strict Rules to Enforce
-- ZERO technical details (no mention of databases, APIs, frameworks)
-- Everything from the user's perspective
-- Must be explicit and detailed about behavior
-- Must create actual files, not just chat output
-
-## Requirements for the Plan Prompt
-
-### Core Purpose
-The `/plan` command helps users define HOW to build what was specified. It's like a technical architect designing the system.
-
-### Key Behaviors Required
-
-#### Pre-flight Checks
-The prompt must teach Copilot to:
-1. Check if `project/specification.md` exists (can't plan without specs)
-2. Look for unanswered questions in the specification
-3. Refuse to proceed if questions aren't answered
-4. Detect existing tech stack by looking for config files
-
-#### Tech Stack Detection
-Must check for these files to understand existing technology:
-- `package.json` → Node.js project
-- `go.mod` → Go project
-- `requirements.txt` → Python project
-- `Gemfile` → Ruby project
-- And others...
-
-#### Two Modes of Operation
-
-**Mode 1: User Specifies Stack**
-- If user types `/plan React, Node.js, PostgreSQL`
-- Use exactly what they specified
-
-**Mode 2: AI Chooses Stack**
-- If user just types `/plan`
-- Analyze the specification to understand needs
-- Choose appropriate modern technologies
-- Justify every choice
-
-#### Architecture Document Creation
-Must create `project/architecture.md` containing:
-- Technology choices with justifications
-- System design (monolith vs microservices vs serverless)
-- Database strategy
-- API approach
-- Security architecture
-- Deployment strategy
-- Development workflow
-
-### Decision Criteria for Tech Selection
-When AI chooses, consider:
-- Project complexity from specification
-- Performance requirements
-- Team size (if mentioned)
-- Time to market
-- Maintenance needs
-
-## Requirements for Copilot Instructions
-
-### Core Purpose
-This is the "master document" that teaches Copilot about the entire workflow.
-
-### Must Include
-- Clear explanation of all 4 commands
-- The proper sequence (specify → plan → implement → verify)
-- How commands work together
-- Project structure that gets created
-- Key principles like "specification first" and "incremental development"
-
-### Important Context
-- Commands can be run multiple times
-- Each command adapts to project state
-- Commands create real files, not just chat output
-
----
-
-# Commit 4: Implement and Verify Prompt Templates
-
-## Requirements for the Implement Prompt
-
-### Core Purpose
-The `/implement` command is the builder - it reads specifications and creates actual code incrementally.
-
-### Key Behaviors Required
-
-#### Intelligent Context Understanding
-Must teach Copilot to:
-1. Read all specifications to understand what to build
-2. Scan existing code to see what's already built
-3. Determine the next logical piece to build
-4. Avoid duplicating existing code
-
-#### Three Usage Modes
-
-**Mode 1: Automatic** (`/implement`)
-- Figure out what to build next
-- Usually: auth first, then core models, then APIs, then UI
-
-**Mode 2: Feature-specific** (`/implement shopping-cart`)
-- Build the specified feature
-
-**Mode 3: File-specific** (`/implement specs/payment.md`)
-- Build from a specific specification file
-
-#### Implementation Strategy
-Must internally break work into small chunks:
-1. Data models first (database schemas, classes)
-2. Business logic (core functionality)
-3. API endpoints (routes, controllers)
-4. UI components (if applicable)
-5. Tests for everything
-6. Documentation
-
-#### Progress Tracking
-Must create/update `implementation-log.md` showing:
-- What's completed (with file paths)
-- What's in progress
-- What's next
-- Files created or modified
-
-#### Language-Specific Patterns
-Must adapt to the detected language:
-- Go: Follow standard project layout, proper error handling
-- Node.js: Use modern ES6+, async/await, proper middleware
-- Python: Follow PEP 8, use type hints, write docstrings
-- React: Functional components, hooks, TypeScript
-
-### Critical Rules
-- Always read specs first
-- Never duplicate existing code
-- Build in small, working increments
-- Create real files
-- Include error handling
-- Write tests
-
-## Requirements for the Verify Prompt
-
-### Core Purpose
-The `/verify` command is the quality checker - it ensures the code is healthy and matches specifications.
-
-### Key Behaviors Required
-
-#### Language Detection
-Must automatically detect project type by looking for:
-- Config files (package.json, go.mod, etc.)
-- Source file extensions
-- Project structure
-
-#### Language-Specific Checks
-Must run appropriate checks for each language:
-
-**For Go:**
-- Build verification (does it compile?)
-- Test execution
-- Static analysis
-- Format checking
-
-**For JavaScript/TypeScript:**
-- Build/compilation
-- Test execution
-- Linting
-- Type checking
-
-**For Python:**
-- Test execution
-- Type checking
-- Format checking
-- Linting
-
-#### Universal Checks
-Regardless of language:
-- Search for TODO/FIXME/HACK comments
-- Check documentation exists
-- Compare implementation against specification
-- Basic security checks (hardcoded secrets, obvious vulnerabilities)
-
-#### Report Generation
-Must create a clear report with:
-- ✅ What's passing
-- ⚠️ Warnings (non-blocking issues)
-- ❌ Errors (must-fix issues)
-- 📊 Coverage metrics
-- 📝 Recommendations for improvement
-- Specification compliance status
-
-### Actionable Output
-- Every issue must include how to fix it
-- Prioritize issues by severity
-- Suggest next steps based on specification
-
----
-
-# Commit 5: Polish, Testing, and Documentation
-
-## Testing Requirements
-
-### Unit Tests Needed
-Create tests that verify:
-- All prompt templates are non-empty
-- No TODO placeholders remain
-- Templates are sufficient length (>500 characters)
-- File writing operations work correctly
-- Directory creation handles errors
-
-### Integration Tests Needed
-- Full init command flow works
-- Force flag overwrites existing files
-- Proper error when files exist without force flag
-- Cross-platform path handling
-
-### Test Coverage Goals
-- Core functionality 100% covered
-- Edge cases handled
-- Error conditions tested
-
-## Documentation Requirements
-
-### README.md Must Include
-
-#### Installation Section
-- How to install from source
-- How to install pre-built binaries
-- System requirements
-
-#### Usage Section
-- Basic usage example
-- Complete workflow walkthrough
-- Example for new projects
-- Example for existing projects
-
-#### How It Works Section
-- Explain the specification-driven approach
-- Describe what each command does
-- Show the project structure created
-
-#### Troubleshooting Section
-- Common issues and solutions
-- FAQ
-- How to report bugs
-
-### In-Code Documentation
-- Add comments for complex logic
-- Document public functions
-- Explain non-obvious decisions
-
-## UX Improvements
-
-### Better Error Messages
-- Instead of "file exists", say "AgentKit already initialized. Use --force to reinitialize"
-- Include suggestions for fixing problems
-- Use color coding consistently
-
-### Better Success Output
-- Show example commands users can try next
-- Include tips for effective usage
-- Make output encouraging and helpful
-
-### Cross-Platform Compatibility
-- Handle Windows path separators
-- Test on Windows, macOS, and Linux
-- Handle different terminal color support
-
-## Performance Considerations
-- Binary size should be <10MB
-- Init command should complete in <1 second
-- Templates should be embedded in binary (no external files needed)
-
----
-
-# Success Criteria for Complete Implementation
-
-## Functional Requirements
-- [ ] `agentkit init` creates all required files
-- [ ] All 4 prompts contain comprehensive instructions
-- [ ] Prompts guide Copilot to create actual files
-- [ ] Each prompt adapts to project context
-- [ ] No placeholder content remains
-
-## Quality Requirements
-- [ ] All tests pass
-- [ ] README is clear and helpful
-- [ ] Error messages guide users to solutions
-- [ ] Works on all major operating systems
-- [ ] Code follows Go best practices
-
-## User Experience
-- [ ] User can go from zero to building in <5 minutes
-- [ ] Workflow is intuitive and natural
-- [ ] Output is helpful and encouraging
-- [ ] Tool feels professional and polished
-
----
-
-# Implementation Notes for the Agent
-
-## Key Principles
-1. **The prompts are teachers** - They teach Copilot how to behave
-2. **Be comprehensive** - Each prompt needs complete instructions
-3. **Create files, not chat** - Prompts must instruct Copilot to create actual files
-4. **Context awareness** - Prompts must adapt to existing projects
-5. **No technical details in specs** - Maintain separation between WHAT and HOW
-
-## Common Pitfalls to Avoid
-- Don't make prompts too short - they need detailed instructions
-- Don't forget the question generation in /specify
-- Don't let /plan proceed without answered questions
-- Don't let /implement duplicate existing code
-- Don't make /verify output without actionable fixes
-
-## Testing Your Work
-After each commit:
-1. Build the project
-2. Run the init command
-3. Check the generated files contain real instructions
-4. Test in VS Code if possible
-5. Verify no placeholders remain
+## Success Metrics
+
+- [ ] Works with Go, Python, and TypeScript projects
+- [ ] `/feat` command generates appropriate workflow for any language
+- [ ] GitHub Copilot integration works seamlessly
+- [ ] Tool can improve itself using its own commands
+- [ ] Clear documentation showing multi-language support
+
+## Key Differences from Original Plan
+
+1. **No language detection in CLI** - Let Copilot detect the language
+2. **Language-agnostic templates** - Templates work for any language
+3. **Focus on patterns, not syntax** - Templates describe what to do, not how
+4. **Examples for multiple languages** - Show it works everywhere

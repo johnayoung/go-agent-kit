@@ -2,7 +2,6 @@ package integration
 
 import (
 	"os"
-	"strings"
 	"testing"
 )
 
@@ -102,18 +101,4 @@ func TestInitCommandEndToEnd(t *testing.T) {
 		// For now, we'll focus on unit tests and defer this
 		t.Skip("End-to-end CLI testing deferred for now")
 	})
-}
-
-// Helper function to check if file exists and has expected content
-func checkFileContent(t *testing.T, filePath, expectedContent string) {
-	content, err := os.ReadFile(filePath)
-	if err != nil {
-		t.Errorf("Failed to read file %s: %v", filePath, err)
-		return
-	}
-
-	if strings.TrimSpace(string(content)) != strings.TrimSpace(expectedContent) {
-		t.Errorf("File %s content mismatch.\nExpected: %q\nGot: %q",
-			filePath, expectedContent, string(content))
-	}
 }

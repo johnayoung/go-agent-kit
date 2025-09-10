@@ -1,197 +1,382 @@
-# AgentKit CLI - Implementation Commits
+# AgentKit Implementation - Detailed Requirements
 
-## Commit Sequence Checklist
+## Project Context
+AgentKit is a CLI tool that creates intelligent prompt templates for GitHub Copilot. Users run `agentkit init` once to set up their project, then use commands like `@workspace /specify` in VS Code's Copilot Chat to build software through specification-driven development.
 
-- [x] Commit 1: Project initialization and CLI foundation
-- [x] Commit 2: Init command with file operations
-- [ ] Commit 3: Specify and Plan prompt templates
-- [ ] Commit 4: Implement and Verify prompt templates  
-- [ ] Commit 5: Polish, testing, and documentation
-
----
-
-## Commit 1: Project initialization and CLI foundation
-
-**Objective**: Set up Go project with CLI framework and basic command structure.
-
-**Requirements**:
-- Initialize Go module `github.com/yourusername/agentkit`
-- Add Cobra and color dependencies
-- Create entry point that executes root command
-- Set up root command with name, description, and version
-- Add init command stub (just prints "Init command called")
-- Add `--force` flag to init command
-- Create Makefile with build, install, clean targets
-- Ensure project follows Go best practices for structure
-
-**Validation**:
-- `go build` succeeds
-- `./agentkit --version` shows version
-- `./agentkit init --help` shows command help
-- `./agentkit init` prints placeholder message
+## Current Status
+- ✅ Commit 1: Basic CLI structure exists
+- ✅ Commit 2: Init command creates files with placeholders
+- ✅ Commit 3: Specify and Plan Prompt Templates with comprehensive content
+- 📍 **NEXT: Commit 4** - Implement and Verify prompt templates
 
 ---
 
-## Commit 2: Init command with file operations
+# Commit 3: Specify and Plan Prompt Templates
 
-**Objective**: Implement the init command to create directory structure and write files.
+## Background Understanding
 
-**Requirements**:
-- Create file writer utility that can:
-  - Write files with proper permissions (0644)
-  - Check if paths exist
-  - Create directories recursively
-- Implement init command logic:
-  - Check if `.github/prompts/` exists
-  - Error if exists without `--force` flag
-  - Create directory structure
-  - Write placeholder files for now (just "TODO: [filename]")
-  - Display colored success output
-- Use color package for output:
-  - Green checkmarks for success
-  - Red for errors
-  - Yellow for warnings
-  - Cyan for command examples
+### What These Prompts Do
+The prompts are instructions that tell GitHub Copilot how to behave when users type specific commands. Think of them as "teaching" Copilot to be a specification expert, architect, developer, and QA engineer.
 
-**Files to Create** (with placeholders):
-- `.github/copilot-instructions.md`
-- `.github/prompts/specify.prompt.md`
-- `.github/prompts/plan.prompt.md`
-- `.github/prompts/implement.prompt.md`
-- `.github/prompts/verify.prompt.md`
+### How They're Used
+1. User types `@workspace /specify` in VS Code Copilot Chat
+2. Copilot reads the prompt template we created
+3. Copilot follows those instructions to help the user
+4. Copilot creates actual files in the project (not just chat responses)
 
-**Validation**:
-- `agentkit init` creates all files
-- `agentkit init` again shows error about existing files
-- `agentkit init --force` overwrites files
-- Output is colored and informative
+## Requirements for the Specify Prompt
 
----
+### Core Purpose
+The `/specify` command helps users define WHAT they want to build without any technical details. It's like a business analyst gathering requirements.
 
-## Commit 3: Specify and Plan prompt templates
+### Key Behaviors Required
 
-**Objective**: Create the specification and planning prompt templates.
+#### Context Detection
+- The prompt must teach Copilot to detect whether the user wants a project-level specification or a feature specification
+- If user types just `/specify` → create project specification
+- If user types `/specify user-authentication` → create feature specification
 
-**Requirements**:
+#### File Creation
+- Must instruct Copilot to create actual markdown files, not just output text
+- Project specs go in `project/specification.md`
+- Feature specs go in `specs/[feature-name].md`
 
-### Specify Prompt Template
-Must instruct Copilot to:
-- Detect if creating project or feature specification
-- Create `project/specification.md` for project-level
-- Create `specs/[feature-name].md` for features
-- Generate comprehensive WHAT and WHY (no technical details)
-- Include "Questions Requiring Answers" section
-- Generate business logic questions
-- Avoid ALL technical implementation details
+#### Content Generation
+The prompt must guide Copilot to generate:
 
-### Plan Prompt Template  
-Must instruct Copilot to:
-- Read all specifications first
-- Detect existing tech stack from files (package.json, go.mod, etc.)
-- Two modes: user-specified stack or LLM-generated
-- Create `project/architecture.md`
-- Include justifications for all technology choices
-- Consider scale, performance, team size when choosing stack
+**For Project Specifications:**
+- What problem does this solve?
+- Who are the users?
+- What are the main features (high-level)?
+- How do we measure success?
+- What are we NOT building?
 
-### Copilot Instructions
-Global instructions including:
-- Overview of the workflow
+**Critical: Question Generation**
+- Must generate 10-20 questions that need answers before building
+- Questions like: "Can users have multiple accounts?", "What happens when X fails?", "Is there a limit to Y?"
+- These questions prevent incomplete specifications
+
+**For Feature Specifications:**
+- What is this specific feature?
+- User stories with acceptance criteria
+- Business rules and logic
+- How it connects to other features
+- Feature-specific questions
+
+### Strict Rules to Enforce
+- ZERO technical details (no mention of databases, APIs, frameworks)
+- Everything from the user's perspective
+- Must be explicit and detailed about behavior
+- Must create actual files, not just chat output
+
+## Requirements for the Plan Prompt
+
+### Core Purpose
+The `/plan` command helps users define HOW to build what was specified. It's like a technical architect designing the system.
+
+### Key Behaviors Required
+
+#### Pre-flight Checks
+The prompt must teach Copilot to:
+1. Check if `project/specification.md` exists (can't plan without specs)
+2. Look for unanswered questions in the specification
+3. Refuse to proceed if questions aren't answered
+4. Detect existing tech stack by looking for config files
+
+#### Tech Stack Detection
+Must check for these files to understand existing technology:
+- `package.json` → Node.js project
+- `go.mod` → Go project
+- `requirements.txt` → Python project
+- `Gemfile` → Ruby project
+- And others...
+
+#### Two Modes of Operation
+
+**Mode 1: User Specifies Stack**
+- If user types `/plan React, Node.js, PostgreSQL`
+- Use exactly what they specified
+
+**Mode 2: AI Chooses Stack**
+- If user just types `/plan`
+- Analyze the specification to understand needs
+- Choose appropriate modern technologies
+- Justify every choice
+
+#### Architecture Document Creation
+Must create `project/architecture.md` containing:
+- Technology choices with justifications
+- System design (monolith vs microservices vs serverless)
+- Database strategy
+- API approach
+- Security architecture
+- Deployment strategy
+- Development workflow
+
+### Decision Criteria for Tech Selection
+When AI chooses, consider:
+- Project complexity from specification
+- Performance requirements
+- Team size (if mentioned)
+- Time to market
+- Maintenance needs
+
+## Requirements for Copilot Instructions
+
+### Core Purpose
+This is the "master document" that teaches Copilot about the entire workflow.
+
+### Must Include
+- Clear explanation of all 4 commands
+- The proper sequence (specify → plan → implement → verify)
 - How commands work together
-- Emphasis on incremental development
-- Instructions to detect context
+- Project structure that gets created
+- Key principles like "specification first" and "incremental development"
 
-**Validation**:
-- Templates are valid markdown
-- Templates contain clear instructions
-- No placeholder content remains
-- Instructions are comprehensive
+### Important Context
+- Commands can be run multiple times
+- Each command adapts to project state
+- Commands create real files, not just chat output
 
 ---
 
-## Commit 4: Implement and Verify prompt templates
+# Commit 4: Implement and Verify Prompt Templates
 
-**Objective**: Create the implementation and verification prompt templates.
+## Requirements for the Implement Prompt
 
-**Requirements**:
+### Core Purpose
+The `/implement` command is the builder - it reads specifications and creates actual code incrementally.
 
-### Implement Prompt Template
-Must instruct Copilot to:
-- Read all specifications and architecture
-- Scan existing code to understand what's built
-- Three modes: no args (next logical thing), feature name, specific file
-- Determine optimal build sequence automatically
-- Break work into small increments internally
-- Create actual code files
-- Update `implementation-log.md` with progress
+### Key Behaviors Required
+
+#### Intelligent Context Understanding
+Must teach Copilot to:
+1. Read all specifications to understand what to build
+2. Scan existing code to see what's already built
+3. Determine the next logical piece to build
+4. Avoid duplicating existing code
+
+#### Three Usage Modes
+
+**Mode 1: Automatic** (`/implement`)
+- Figure out what to build next
+- Usually: auth first, then core models, then APIs, then UI
+
+**Mode 2: Feature-specific** (`/implement shopping-cart`)
+- Build the specified feature
+
+**Mode 3: File-specific** (`/implement specs/payment.md`)
+- Build from a specific specification file
+
+#### Implementation Strategy
+Must internally break work into small chunks:
+1. Data models first (database schemas, classes)
+2. Business logic (core functionality)
+3. API endpoints (routes, controllers)
+4. UI components (if applicable)
+5. Tests for everything
+6. Documentation
+
+#### Progress Tracking
+Must create/update `implementation-log.md` showing:
+- What's completed (with file paths)
+- What's in progress
+- What's next
+- Files created or modified
+
+#### Language-Specific Patterns
+Must adapt to the detected language:
+- Go: Follow standard project layout, proper error handling
+- Node.js: Use modern ES6+, async/await, proper middleware
+- Python: Follow PEP 8, use type hints, write docstrings
+- React: Functional components, hooks, TypeScript
+
+### Critical Rules
+- Always read specs first
 - Never duplicate existing code
-- Respect existing patterns
+- Build in small, working increments
+- Create real files
+- Include error handling
+- Write tests
 
-### Verify Prompt Template
-Must instruct Copilot to:
-- Detect project language/framework automatically
-- Run appropriate checks per language:
-  - Python: mypy, pytest, ruff
-  - JavaScript/TypeScript: tsc, jest, eslint
-  - Go: go build, go test, go vet
-- Check for TODO/FIXME comments
-- Compare implementation against specifications
-- Format output with clear sections (passing, warnings, errors)
-- Provide actionable fix suggestions
+## Requirements for the Verify Prompt
 
-**Validation**:
-- Templates provide complete instructions
-- Language detection logic is comprehensive
-- All major languages covered
-- Output format is clearly specified
+### Core Purpose
+The `/verify` command is the quality checker - it ensures the code is healthy and matches specifications.
+
+### Key Behaviors Required
+
+#### Language Detection
+Must automatically detect project type by looking for:
+- Config files (package.json, go.mod, etc.)
+- Source file extensions
+- Project structure
+
+#### Language-Specific Checks
+Must run appropriate checks for each language:
+
+**For Go:**
+- Build verification (does it compile?)
+- Test execution
+- Static analysis
+- Format checking
+
+**For JavaScript/TypeScript:**
+- Build/compilation
+- Test execution
+- Linting
+- Type checking
+
+**For Python:**
+- Test execution
+- Type checking
+- Format checking
+- Linting
+
+#### Universal Checks
+Regardless of language:
+- Search for TODO/FIXME/HACK comments
+- Check documentation exists
+- Compare implementation against specification
+- Basic security checks (hardcoded secrets, obvious vulnerabilities)
+
+#### Report Generation
+Must create a clear report with:
+- ✅ What's passing
+- ⚠️ Warnings (non-blocking issues)
+- ❌ Errors (must-fix issues)
+- 📊 Coverage metrics
+- 📝 Recommendations for improvement
+- Specification compliance status
+
+### Actionable Output
+- Every issue must include how to fix it
+- Prioritize issues by severity
+- Suggest next steps based on specification
 
 ---
 
-## Commit 5: Polish, testing, and documentation
+# Commit 5: Polish, Testing, and Documentation
 
-**Objective**: Add tests, improve UX, and create documentation.
+## Testing Requirements
 
-**Requirements**:
-- Add unit tests for:
-  - File writing operations
-  - Path existence checks
-  - Directory creation
-- Add integration test for full init flow
-- Create comprehensive README.md with:
-  - Installation instructions
-  - Usage examples for all scenarios
-  - Workflow explanation
-  - Troubleshooting section
-- Improve error messages to be more helpful
-- Add examples to success output
-- Ensure cross-platform compatibility (Windows paths)
-- Add `.gitignore` for Go projects
-- Add GitHub Actions workflow for CI (optional)
+### Unit Tests Needed
+Create tests that verify:
+- All prompt templates are non-empty
+- No TODO placeholders remain
+- Templates are sufficient length (>500 characters)
+- File writing operations work correctly
+- Directory creation handles errors
 
-**Validation**:
-- `go test ./...` passes
-- README clearly explains the tool
-- Error messages guide users to solutions
-- Works on Windows, macOS, and Linux
-- Binary size is reasonable (< 10MB)
+### Integration Tests Needed
+- Full init command flow works
+- Force flag overwrites existing files
+- Proper error when files exist without force flag
+- Cross-platform path handling
+
+### Test Coverage Goals
+- Core functionality 100% covered
+- Edge cases handled
+- Error conditions tested
+
+## Documentation Requirements
+
+### README.md Must Include
+
+#### Installation Section
+- How to install from source
+- How to install pre-built binaries
+- System requirements
+
+#### Usage Section
+- Basic usage example
+- Complete workflow walkthrough
+- Example for new projects
+- Example for existing projects
+
+#### How It Works Section
+- Explain the specification-driven approach
+- Describe what each command does
+- Show the project structure created
+
+#### Troubleshooting Section
+- Common issues and solutions
+- FAQ
+- How to report bugs
+
+### In-Code Documentation
+- Add comments for complex logic
+- Document public functions
+- Explain non-obvious decisions
+
+## UX Improvements
+
+### Better Error Messages
+- Instead of "file exists", say "AgentKit already initialized. Use --force to reinitialize"
+- Include suggestions for fixing problems
+- Use color coding consistently
+
+### Better Success Output
+- Show example commands users can try next
+- Include tips for effective usage
+- Make output encouraging and helpful
+
+### Cross-Platform Compatibility
+- Handle Windows path separators
+- Test on Windows, macOS, and Linux
+- Handle different terminal color support
+
+## Performance Considerations
+- Binary size should be <10MB
+- Init command should complete in <1 second
+- Templates should be embedded in binary (no external files needed)
 
 ---
 
-## Implementation Notes
+# Success Criteria for Complete Implementation
 
-- Each commit should be independently functional
-- Run `go fmt` and `go vet` before each commit
-- Keep commits focused - resist adding extra features
-- Use embedded strings for templates (no external files)
-- Follow Go conventions for error handling
-- Use clear variable and function names
-- Add comments only where behavior isn't obvious
+## Functional Requirements
+- [ ] `agentkit init` creates all required files
+- [ ] All 4 prompts contain comprehensive instructions
+- [ ] Prompts guide Copilot to create actual files
+- [ ] Each prompt adapts to project context
+- [ ] No placeholder content remains
 
-## Success Criteria
+## Quality Requirements
+- [ ] All tests pass
+- [ ] README is clear and helpful
+- [ ] Error messages guide users to solutions
+- [ ] Works on all major operating systems
+- [ ] Code follows Go best practices
 
-After all commits:
-- [ ] Single binary that works everywhere
-- [ ] One command creates complete prompt structure  
-- [ ] Prompts are intelligent and self-contained
-- [ ] Clear documentation and examples
-- [ ] Tested and reliable
-- [ ] Total implementation time: 3-4 hours
+## User Experience
+- [ ] User can go from zero to building in <5 minutes
+- [ ] Workflow is intuitive and natural
+- [ ] Output is helpful and encouraging
+- [ ] Tool feels professional and polished
+
+---
+
+# Implementation Notes for the Agent
+
+## Key Principles
+1. **The prompts are teachers** - They teach Copilot how to behave
+2. **Be comprehensive** - Each prompt needs complete instructions
+3. **Create files, not chat** - Prompts must instruct Copilot to create actual files
+4. **Context awareness** - Prompts must adapt to existing projects
+5. **No technical details in specs** - Maintain separation between WHAT and HOW
+
+## Common Pitfalls to Avoid
+- Don't make prompts too short - they need detailed instructions
+- Don't forget the question generation in /specify
+- Don't let /plan proceed without answered questions
+- Don't let /implement duplicate existing code
+- Don't make /verify output without actionable fixes
+
+## Testing Your Work
+After each commit:
+1. Build the project
+2. Run the init command
+3. Check the generated files contain real instructions
+4. Test in VS Code if possible
+5. Verify no placeholders remain

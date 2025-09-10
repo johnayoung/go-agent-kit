@@ -16,8 +16,8 @@ func TestFeatCommand(t *testing.T) {
 		expectedInText []string
 	}{
 		{
-			name: "feat with single word description",
-			args: []string{"authentication"},
+			name:          "feat with single word description",
+			args:          []string{"authentication"},
 			expectedError: false,
 			expectedInText: []string{
 				"Feature Implementation Workflow",
@@ -26,8 +26,8 @@ func TestFeatCommand(t *testing.T) {
 			},
 		},
 		{
-			name: "feat with multi-word description",
-			args: []string{"add", "user", "authentication", "system"},
+			name:          "feat with multi-word description",
+			args:          []string{"add", "user", "authentication", "system"},
 			expectedError: false,
 			expectedInText: []string{
 				"Feature Implementation Workflow",
@@ -115,9 +115,9 @@ func TestRunFeat(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			// Create a mock command
 			cmd := &cobra.Command{}
-			
+
 			err := runFeat(cmd, tt.args)
-			
+
 			if tt.expectError && err == nil {
 				t.Error("Expected error but got none")
 			}

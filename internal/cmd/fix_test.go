@@ -115,9 +115,9 @@ func TestRunFix(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			// Create a mock command
 			cmd := &cobra.Command{}
-			
+
 			err := runFix(cmd, tt.args)
-			
+
 			if tt.expectError && err == nil {
 				t.Error("Expected error but got none")
 			}

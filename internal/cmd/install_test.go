@@ -40,14 +40,17 @@ func TestInstallCommand(t *testing.T) {
 				".github/copilot-instructions.md",
 				".github/prompts/feat.prompt.md",
 				".github/prompts/fix.prompt.md",
+				".github/prompts/refactor.prompt.md",
 			},
 			expectedInText: []string{
 				"Successfully installed GitHub Copilot integration!",
 				"Created: .github/copilot-instructions.md",
 				"Created: .github/prompts/feat.prompt.md",
 				"Created: .github/prompts/fix.prompt.md",
+				"Created: .github/prompts/refactor.prompt.md",
 				"/feat add user authentication",
 				"/fix null pointer exception",
+				"/refactor simplify error handling",
 			},
 		},
 	}
@@ -123,6 +126,17 @@ func TestInstallCommand(t *testing.T) {
 								t.Errorf("Expected to find '%s' in %s", expected, filePath)
 							}
 						}
+					} else if strings.Contains(filePath, "refactor") {
+						expectedContent := []string{
+							"Code Refactor Workflow",
+							"STAGE 1: CODEBASE ANALYSIS",
+							"{{.Description}}",
+						}
+						for _, expected := range expectedContent {
+							if !strings.Contains(contentStr, expected) {
+								t.Errorf("Expected to find '%s' in %s", expected, filePath)
+							}
+						}
 					}
 				}
 			}
@@ -137,6 +151,7 @@ func TestGenerateCopilotInstructions(t *testing.T) {
 		"GitHub Copilot Instructions for go-agent-kit",
 		"/feat - Feature Implementation Workflow",
 		"/fix - Bug Fix Workflow",
+		"/refactor - Code Refactoring Workflow",
 		"CODEBASE ANALYSIS",
 		"IMPLEMENTATION PLAN",
 		"Language-Agnostic Design",

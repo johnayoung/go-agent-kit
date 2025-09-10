@@ -35,6 +35,7 @@ go install github.com/johnayoung/go-agent-kit/cmd/go-agent-kit@latest
    ```
    /feat add user authentication system
    /fix null pointer exception in service layer
+   /refactor simplify payment processing logic
    ```
 
 3. **Follow the generated workflows** step by step for systematic development
@@ -71,24 +72,40 @@ go-agent-kit fix "memory leak in background worker"
 go-agent-kit fix "authentication not working on mobile"
 ```
 
+### `go-agent-kit refactor [description]`
+Generate a comprehensive code refactoring workflow with 5 stages:
+1. **Codebase Analysis** - Understand current implementation and identify improvements
+2. **Refactor Plan** - Plan refactoring strategy and assess risks
+3. **Implementation** - Apply refactoring techniques systematically
+4. **Testing** - Verify functionality and performance are maintained
+5. **Documentation** - Update docs to reflect architectural changes
+
+**Examples:**
+```bash
+go-agent-kit refactor "simplify user authentication logic"
+go-agent-kit refactor "extract payment processing into separate service"
+go-agent-kit refactor "optimize database query performance"
+```
+
 ### `go-agent-kit install`
 Install GitHub Copilot integration files in your project:
 - Creates `.github/copilot-instructions.md` with usage instructions
-- Enables `/feat` and `/fix` commands in GitHub Copilot Chat
+- Creates `.github/prompts/` directory with workflow templates
+- Enables `/feat`, `/fix`, and `/refactor` commands in GitHub Copilot Chat
 - Works with any programming language or framework
 
 ## Language Support
 
 The workflows automatically detect and provide guidance for:
 
-| Language | Detection | Best Practices | Testing Patterns |
-|----------|-----------|----------------|------------------|
-| **Go** | `go.mod` | Error patterns, interfaces, Go modules | `_test.go` files, table tests |
-| **Python** | `requirements.txt`, `pyproject.toml` | PEP 8, type hints, packages | `pytest`, `unittest` |
-| **TypeScript/JavaScript** | `package.json`, `tsconfig.json` | ESLint rules, async/await, types | Jest, Mocha, Cypress |
-| **Java** | `pom.xml`, `build.gradle` | Design patterns, exceptions | JUnit, TestNG |
-| **C#** | `*.csproj`, `*.sln` | LINQ, async/await, IDisposable | MSTest, NUnit, xUnit |
-| **Ruby** | `Gemfile`, `*.gemspec` | Ruby style guide, Rails conventions | RSpec, Minitest |
+| Language                  | Detection                            | Best Practices                         | Testing Patterns              |
+| ------------------------- | ------------------------------------ | -------------------------------------- | ----------------------------- |
+| **Go**                    | `go.mod`                             | Error patterns, interfaces, Go modules | `_test.go` files, table tests |
+| **Python**                | `requirements.txt`, `pyproject.toml` | PEP 8, type hints, packages            | `pytest`, `unittest`          |
+| **TypeScript/JavaScript** | `package.json`, `tsconfig.json`      | ESLint rules, async/await, types       | Jest, Mocha, Cypress          |
+| **Java**                  | `pom.xml`, `build.gradle`            | Design patterns, exceptions            | JUnit, TestNG                 |
+| **C#**                    | `*.csproj`, `*.sln`                  | LINQ, async/await, IDisposable         | MSTest, NUnit, xUnit          |
+| **Ruby**                  | `Gemfile`, `*.gemspec`               | Ruby style guide, Rails conventions    | RSpec, Minitest               |
 
 ## How It Works
 

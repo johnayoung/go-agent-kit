@@ -56,9 +56,11 @@ func runInstall(cmd *cobra.Command, args []string) error {
 	cmd.Printf("📁 Created: %s\n", instructionsPath)
 	cmd.Printf("📁 Created: %s/feat.prompt.md\n", promptsDir)
 	cmd.Printf("📁 Created: %s/fix.prompt.md\n", promptsDir)
+	cmd.Printf("📁 Created: %s/refactor.prompt.md\n", promptsDir)
 	cmd.Printf("\n🚀 You can now use these commands in GitHub Copilot:\n")
 	cmd.Printf("   /feat add user authentication\n")
 	cmd.Printf("   /fix null pointer exception\n")
+	cmd.Printf("   /refactor simplify error handling\n")
 	cmd.Printf("\n💡 The workflows are language-agnostic and work with any programming language.\n")
 
 	return nil
@@ -87,6 +89,18 @@ func installPromptFiles(promptsDir string) error {
 	fixPath := filepath.Join(promptsDir, "fix.prompt.md")
 	if err := os.WriteFile(fixPath, fixContent, 0644); err != nil {
 		return fmt.Errorf("failed to write fix prompt file: %w", err)
+	}
+
+	// Get refactor template content
+	refactorContent, err := templates.PromptFiles.ReadFile("prompts/refactor.md")
+	if err != nil {
+		return fmt.Errorf("failed to read refactor template: %w", err)
+	}
+
+	// Write refactor.prompt.md
+	refactorPath := filepath.Join(promptsDir, "refactor.prompt.md")
+	if err := os.WriteFile(refactorPath, refactorContent, 0644); err != nil {
+		return fmt.Errorf("failed to write refactor prompt file: %w", err)
 	}
 
 	return nil
@@ -142,6 +156,28 @@ Generates a systematic 5-stage debugging workflow:
 3. **IMPLEMENTATION** - Apply minimal fix with safety checks
 4. **TESTING** - Verify fix and run regression tests
 5. **DOCUMENTATION** - Document the fix and add preventive measures
+
+### /refactor - Code Refactoring Workflow
+Use this command to systematically improve and refactor existing code.
+
+**Usage:**
+` + "```" + `
+/refactor [description of the refactoring task]
+` + "```" + `
+
+**Examples:**
+- /refactor simplify user authentication logic
+- /refactor extract payment processing into separate service
+- /refactor optimize database query performance
+- /refactor improve error handling patterns
+
+**What it does:**
+Generates a comprehensive 5-stage refactoring workflow:
+1. **CODEBASE ANALYSIS** - Understand current implementation and identify improvements
+2. **REFACTOR PLAN** - Plan refactoring strategy and assess risks
+3. **IMPLEMENTATION** - Apply refactoring techniques systematically
+4. **TESTING** - Verify functionality and performance are maintained
+5. **DOCUMENTATION** - Update docs to reflect architectural changes
 
 ## Language-Agnostic Design
 

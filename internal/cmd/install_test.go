@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"os"
-	"path/filepath"
 	"strings"
 	"testing"
 
@@ -31,16 +30,22 @@ func TestInstallCommand(t *testing.T) {
 	tests := []struct {
 		name           string
 		expectedError  bool
-		checkFile      bool
+		checkFiles     []string
 		expectedInText []string
 	}{
 		{
-			name:          "install command creates .github directory and file",
+			name:          "install command creates .github directory and files",
 			expectedError: false,
-			checkFile:     true,
+			checkFiles: []string{
+				".github/copilot-instructions.md",
+				".github/prompts/feat.prompt.md",
+				".github/prompts/fix.prompt.md",
+			},
 			expectedInText: []string{
 				"Successfully installed GitHub Copilot integration!",
 				"Created: .github/copilot-instructions.md",
+				"Created: .github/prompts/feat.prompt.md",
+				"Created: .github/prompts/fix.prompt.md",
 				"/feat add user authentication",
 				"/fix null pointer exception",
 			},
@@ -82,30 +87,42 @@ func TestInstallCommand(t *testing.T) {
 				}
 			}
 
-			// Check if file was created
-			if tt.checkFile {
-				instructionsPath := filepath.Join(".github", "copilot-instructions.md")
-				if _, err := os.Stat(instructionsPath); os.IsNotExist(err) {
-					t.Errorf("Expected file %s to be created", instructionsPath)
+			// Check if files were created
+			for _, filePath := range tt.checkFiles {
+				if _, err := os.Stat(filePath); os.IsNotExist(err) {
+					t.Errorf("Expected file %s to be created", filePath)
 				}
 
-				// Check file content
-				content, err := os.ReadFile(instructionsPath)
-				if err != nil {
-					t.Errorf("Failed to read created file: %v", err)
-				}
+				// Check file content for prompt files
+				if strings.HasSuffix(filePath, ".prompt.md") {
+					content, err := os.ReadFile(filePath)
+					if err != nil {
+						t.Errorf("Failed to read created file %s: %v", filePath, err)
+					}
 
-				contentStr := string(content)
-				expectedFileContent := []string{
-					"GitHub Copilot Instructions for go-agent-kit",
-					"/feat - Feature Implementation Workflow",
-					"/fix - Bug Fix Workflow",
-					"Language-Agnostic Design",
-				}
-
-				for _, expected := range expectedFileContent {
-					if !strings.Contains(contentStr, expected) {
-						t.Errorf("Expected to find '%s' in file content", expected)
+					contentStr := string(content)
+					if strings.Contains(filePath, "feat") {
+						expectedContent := []string{
+							"Feature Implementation Workflow",
+							"STAGE 1: CODEBASE ANALYSIS",
+							"{{.Description}}",
+						}
+						for _, expected := range expectedContent {
+							if !strings.Contains(contentStr, expected) {
+								t.Errorf("Expected to find '%s' in %s", expected, filePath)
+							}
+						}
+					} else if strings.Contains(filePath, "fix") {
+						expectedContent := []string{
+							"Bug Fix Workflow",
+							"STAGE 1: DIAGNOSIS",
+							"{{.Description}}",
+						}
+						for _, expected := range expectedContent {
+							if !strings.Contains(contentStr, expected) {
+								t.Errorf("Expected to find '%s' in %s", expected, filePath)
+							}
+						}
 					}
 				}
 			}

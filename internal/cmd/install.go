@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/johnayoung/go-agent-kit/internal/templates"
 	"github.com/spf13/cobra"
 )
 
@@ -31,6 +32,17 @@ func runInstall(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to create .github directory: %w", err)
 	}
 
+	// Create .github/prompts directory if it doesn't exist
+	promptsDir := filepath.Join(githubDir, "prompts")
+	if err := os.MkdirAll(promptsDir, 0755); err != nil {
+		return fmt.Errorf("failed to create .github/prompts directory: %w", err)
+	}
+
+	// Install prompt files
+	if err := installPromptFiles(promptsDir); err != nil {
+		return fmt.Errorf("failed to install prompt files: %w", err)
+	}
+
 	// Generate the copilot instructions
 	instructions := generateCopilotInstructions()
 
@@ -42,10 +54,40 @@ func runInstall(cmd *cobra.Command, args []string) error {
 
 	cmd.Printf("✅ Successfully installed GitHub Copilot integration!\n")
 	cmd.Printf("📁 Created: %s\n", instructionsPath)
+	cmd.Printf("📁 Created: %s/feat.prompt.md\n", promptsDir)
+	cmd.Printf("📁 Created: %s/fix.prompt.md\n", promptsDir)
 	cmd.Printf("\n🚀 You can now use these commands in GitHub Copilot:\n")
 	cmd.Printf("   /feat add user authentication\n")
 	cmd.Printf("   /fix null pointer exception\n")
 	cmd.Printf("\n💡 The workflows are language-agnostic and work with any programming language.\n")
+
+	return nil
+}
+
+func installPromptFiles(promptsDir string) error {
+	// Get feat template content
+	featContent, err := templates.PromptFiles.ReadFile("prompts/feat.md")
+	if err != nil {
+		return fmt.Errorf("failed to read feat template: %w", err)
+	}
+
+	// Write feat.prompt.md
+	featPath := filepath.Join(promptsDir, "feat.prompt.md")
+	if err := os.WriteFile(featPath, featContent, 0644); err != nil {
+		return fmt.Errorf("failed to write feat prompt file: %w", err)
+	}
+
+	// Get fix template content
+	fixContent, err := templates.PromptFiles.ReadFile("prompts/fix.md")
+	if err != nil {
+		return fmt.Errorf("failed to read fix template: %w", err)
+	}
+
+	// Write fix.prompt.md
+	fixPath := filepath.Join(promptsDir, "fix.prompt.md")
+	if err := os.WriteFile(fixPath, fixContent, 0644); err != nil {
+		return fmt.Errorf("failed to write fix prompt file: %w", err)
+	}
 
 	return nil
 }
